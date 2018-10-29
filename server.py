@@ -48,7 +48,7 @@ class Handler(FileSystemEventHandler):
         print(ignoreclient)
         if ignoreclient == False:
             if event.is_directory:
-                return None
+                print(event.src_path)
 
             
 
@@ -74,7 +74,8 @@ class Handler(FileSystemEventHandler):
                 for i in clientes:
                     '''if i == ignoreclient :
                         continue'''
-                    udpserver.sendto('delete:'+event.src_path.encode('utf-8'),i)
+                    mensagemudp = 'delete:'+event.src_path
+                    udpserver.sendto(mensagemudp.encode('utf-8'),i)
                 #RemoverArquivo('rm -rf '+event.src_path)
                 # Taken any action here when a file is modified.
                 print("Received deleted event - %s." % event.src_path)
@@ -110,7 +111,7 @@ def conectado(connectionSocket, clientAddress):
             filename = comando.replace('upload:','')
             filename = filename.decode('utf-8')
             connectionSocket.sendto('ok'.encode('utf-8'),clientAddress)
-            file = open(DIRECTORY_TO_WATCH+filename, "w+")
+            file = open(os.path.join(DIRECTORY_TO_WATCH,filename), "w+")
             #get the first line of the file
             clientInput = connectionSocket.recv(1024).decode('utf-8')
             bytesReceived = 0
@@ -135,7 +136,8 @@ def conectado(connectionSocket, clientAddress):
         elif comando[:8] =='remover:':
             comando = comando.replace('remover:','')
             print('remover: '+comando)
-            #os.system('rm -rf '+DIRECTORY_TO_WATCH+comando)
+            os.remove(os.path.join(DIRECTORY_TO_WATCH,comando))
+            
         
         elif comando[:9] =='download:':
             arquivo = comando.replace('download:','')

@@ -34,8 +34,7 @@ def connect_to_server_tcp(ip, port):
 
 @threaded
 def EnviarArquivo(arquivo):
-    
-        
+       
     #Bytes in Test File
     numBytesFile = determine_num_bytes(os.path.abspath(arquivo))
 
@@ -61,7 +60,7 @@ def EnviarArquivo(arquivo):
 def RemoverArquivo(arquivo):
     #Connecting to the server
     sock = connect_to_server_tcp(SERVER, PORT)
-    sock.send(os.path.basename(arquivo).encode('utf-8') )#envia o nome do arquivo
+    sock.send(arquivo.encode('utf-8') )#envia o nome do arquivo
     
 
 
@@ -95,7 +94,7 @@ class Handler(FileSystemEventHandler):
 
         else:
             if event.is_directory:
-                return None
+                pass
 
             elif event.event_type == 'created':
                 EnviarArquivo(event.src_path)
@@ -107,7 +106,7 @@ class Handler(FileSystemEventHandler):
                 # Taken any action here when a file is modified.
                 print("Received modified event - %s." % event.src_path)
             elif event.event_type == 'deleted':
-                RemoverArquivo('rm -rf '+event.src_path)
+                RemoverArquivo('remover:'+os.path.basename(event.src_path))
                 # Taken any action here when a file is modified.
                 print("Received deleted event - %s." % event.src_path)
 
@@ -121,7 +120,7 @@ def SolicitarDownload(filename):
     connectionSocket.sendall( mensagem.encode('utf-8') )
     _= connectionSocket.recv(1024)
     connectionSocket.sendall('ok'.encode('utf-8') )
-    filename = DIRECTORY_TO_WATCH+os.path.basename(filename)
+    filename = os.path.join(DIRECTORY_TO_WATCH,os.path.basename(filename))
     file = open(filename, "w+")
     #get the first line of the file
     clientInput = connectionSocket.recv(1024).decode('utf-8')
@@ -166,8 +165,8 @@ def udpthread():
             print("UPDATE: ",msg.replace('update:',''))
             SolicitarDownload(msg.replace('update:',''))
         elif msg[:7] == 'delete:':
-            print("REMOVE", msg)
-            #os.remove(DIRECTORY_TO_WATCH+msg.replace('update:',''))
+            print("REMOVE", os.path.join(DIRECTORY_TO_WATCH,os.path.basename(msg.replace('delete:',''))))
+            os.remove(os.path.join(DIRECTORY_TO_WATCH,os.path.basename(msg.replace('delete:',''))))
         
         
 
