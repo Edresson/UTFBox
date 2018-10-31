@@ -34,7 +34,8 @@ def connect_to_server_tcp(ip, port):
 
 @threaded
 def EnviarArquivo(arquivo):
-       
+    
+    
     #Bytes in Test File
     numBytesFile = determine_num_bytes(os.path.abspath(arquivo))
 
@@ -43,9 +44,9 @@ def EnviarArquivo(arquivo):
 
     #Connecting to the server
     sock = connect_to_server_tcp(SERVER, PORT)
-
+    arquivopath = arquivo.replace(DIRECTORY_TO_WATCH,'')#usado para poder upar pastas    
     #Read the text file to the socket
-    read_text_file(sock, testFileObj, numBytesFile)
+    read_text_file(sock, testFileObj, numBytesFile,arquivopath)
 
     #serverResponse = sock.recv(1024)
     #print "Server received <" + str(serverResponse) + "> bytes."
@@ -88,13 +89,13 @@ class Handler(FileSystemEventHandler):
     @staticmethod
     def on_any_event(event):
         global blockwatchdog 
-        print(blockwatchdog )
+        print('Flag: ',blockwatchdog )
         if blockwatchdog: # ignore modified
-            return None
+            pass
 
         else:
             if event.is_directory:
-                pass
+                return None
 
             elif event.event_type == 'created':
                 EnviarArquivo(event.src_path)
@@ -106,10 +107,12 @@ class Handler(FileSystemEventHandler):
                 # Taken any action here when a file is modified.
                 print("Received modified event - %s." % event.src_path)
             elif event.event_type == 'deleted':
-                RemoverArquivo('remover:'+os.path.basename(event.src_path))
+                arquivo = event.src_path.replace(DIRECTORY_TO_WATCH,'')
+                RemoverArquivo('remover:'+arquivo)
                 # Taken any action here when a file is modified.
                 print("Received deleted event - %s." % event.src_path)
 
+@threaded
 def SolicitarDownload(filename):
     global blockwatchdog
     blockwatchdog = True
@@ -120,7 +123,13 @@ def SolicitarDownload(filename):
     connectionSocket.sendall( mensagem.encode('utf-8') )
     _= connectionSocket.recv(1024)
     connectionSocket.sendall('ok'.encode('utf-8') )
-    filename = os.path.join(DIRECTORY_TO_WATCH,os.path.basename(filename))
+    filename= os.path.join(DIRECTORY_TO_WATCH,filename)
+    print('Filename: ', filename)
+    if not os.path.exists(os.path.dirname(filename)):
+                try:
+                    os.makedirs(os.path.dirname(filename))
+                except OSError as exc: # Guard against race condition
+                    pass
     file = open(filename, "w+")
     #get the first line of the file
     clientInput = connectionSocket.recv(1024).decode('utf-8')
@@ -141,6 +150,7 @@ def SolicitarDownload(filename):
     time.sleep(1)
     blockwatchdog = False
     print('Download Acabou') 
+    
 
 
 @threaded
@@ -165,9 +175,11 @@ def udpthread():
             print("UPDATE: ",msg.replace('update:',''))
             SolicitarDownload(msg.replace('update:',''))
         elif msg[:7] == 'delete:':
-            print("REMOVE", os.path.join(DIRECTORY_TO_WATCH,os.path.basename(msg.replace('delete:',''))))
-            os.remove(os.path.join(DIRECTORY_TO_WATCH,os.path.basename(msg.replace('delete:',''))))
-        
+            try:
+                print("REMOVE", os.path.join(DIRECTORY_TO_WATCH,msg.replace('delete:','')))
+                os.remove(os.path.join(DIRECTORY_TO_WATCH,msg.replace('delete:','')))
+            except:
+                pass
         
 
 if __name__ == '__main__':

@@ -47,18 +47,22 @@ class Handler(FileSystemEventHandler):
         global udpserver,clientes,ignoreclient
         print(ignoreclient)
         if ignoreclient == False:
+            src_path = event.src_path.replace(DIRECTORY_TO_WATCH,'')
+                
             if event.is_directory:
                 print(event.src_path)
+                return None
 
             
-
+            
             elif event.event_type == 'created':
                 # Take any action here when a file is first created.
                 for i in clientes:
                     '''print(i,ignoreclient)
                     if i[0] == ignoreclient[0] :
                         continue'''
-                    udpserver.sendto('create:'+event.src_path.encode('utf-8'),i)
+                    msg = 'create:'+src_path
+                    udpserver.sendto(msg.encode('utf-8'),i)
                 print("Received created event - %s." % event.src_path)
 
             elif event.event_type == 'modified':
@@ -68,13 +72,15 @@ class Handler(FileSystemEventHandler):
                     '''print(i,ignoreclient)
                     if i[0] == ignoreclient[0] :
                         continue'''
-                    udpserver.sendto('update:'+event.src_path.encode('utf-8'),i)
+                    msg= 'update:'+src_path
+                    udpserver.sendto(msg.encode('utf-8'),i)
                 print("Received modified event - %s." % event.src_path)
+
             elif event.event_type == 'deleted':
                 for i in clientes:
                     '''if i == ignoreclient :
                         continue'''
-                    mensagemudp = 'delete:'+event.src_path
+                    mensagemudp = 'delete:'+src_path
                     udpserver.sendto(mensagemudp.encode('utf-8'),i)
                 #RemoverArquivo('rm -rf '+event.src_path)
                 # Taken any action here when a file is modified.
@@ -111,7 +117,14 @@ def conectado(connectionSocket, clientAddress):
             filename = comando.replace('upload:','')
             filename = filename.decode('utf-8')
             connectionSocket.sendto('ok'.encode('utf-8'),clientAddress)
-            file = open(os.path.join(DIRECTORY_TO_WATCH,filename), "w+")
+            filename= os.path.join(DIRECTORY_TO_WATCH,filename)
+            if not os.path.exists(os.path.dirname(filename)):
+                try:
+                    os.makedirs(os.path.dirname(filename))
+                except OSError as exc: # Guard against race condition
+                    pass
+
+            file = open(filename, "w+")
             #get the first line of the file
             clientInput = connectionSocket.recv(1024).decode('utf-8')
             bytesReceived = 0
@@ -136,20 +149,24 @@ def conectado(connectionSocket, clientAddress):
         elif comando[:8] =='remover:':
             comando = comando.replace('remover:','')
             print('remover: '+comando)
-            os.remove(os.path.join(DIRECTORY_TO_WATCH,comando))
-            
+            try:
+                os.remove(os.path.join(DIRECTORY_TO_WATCH,comando))
+            except:
+                pass
         
         elif comando[:9] =='download:':
-            arquivo = comando.replace('download:','')
-            #Bytes in Test File
+            print('Iniciando download:')   
+            arquivo = os.path.join(DIRECTORY_TO_WATCH ,comando.replace('download:',''))
+            #Bytes in Test File7
+            print('Arquivo: ',arquivo)
+        
             numBytesFile = determine_num_bytes(arquivo)
 
             #Opening the test file
             testFileObj = open_text_file(os.path.abspath(arquivo))
-
-
+            arquivopath = arquivo.replace(DIRECTORY_TO_WATCH,'')#usado para poder upar pastas
             #Read the text file to the socket
-            read_text_file(connectionSocket, testFileObj, numBytesFile)
+            read_text_file(connectionSocket, testFileObj, numBytesFile,arquivopath)
 
             #serverResponse = sock.recv(1024)
             #print "Server received <" + str(serverResponse) + "> bytes."
