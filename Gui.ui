@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>308</width>
+    <height>254</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>UTFBox</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QStackedWidget" name="stackedWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>291</width>
+      <height>211</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="stackedWidgetPage1">
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>150</y>
+        <width>191</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Não possui conta ?  Registre-se</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="Senha">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>70</y>
+        <width>113</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="Login">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>120</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Login</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="lSenha">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>70</y>
+        <width>54</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Senha:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>20</y>
+        <width>54</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Usuario:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="Registrarse">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>180</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Registrar-se </string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="Usuario">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>20</y>
+        <width>113</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="stackedWidgetPage2">
+     <widget class="QPushButton" name="Registrar">
+      <property name="geometry">
+       <rect>
+        <x>127</x>
+        <y>160</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Registrar</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="RSenha">
+      <property name="geometry">
+       <rect>
+        <x>127</x>
+        <y>70</y>
+        <width>113</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="labelsenha">
+      <property name="geometry">
+       <rect>
+        <x>67</x>
+        <y>70</y>
+        <width>54</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Senha:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="confSenha">
+      <property name="geometry">
+       <rect>
+        <x>127</x>
+        <y>110</y>
+        <width>113</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>67</x>
+        <y>20</y>
+        <width>54</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Usuario:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="RUsuario">
+      <property name="geometry">
+       <rect>
+        <x>127</x>
+        <y>20</y>
+        <width>113</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="labelconfsenha">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>110</y>
+        <width>101</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Confirmar senha:</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
