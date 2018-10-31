@@ -1,5 +1,7 @@
 from Gui import *
 
+from PyQt5.QtWidgets import QFileDialog
+
 def get_login_information(ui):
     return ui.Usuario.text(),ui.Senha.text()
 
@@ -20,6 +22,9 @@ def registrar():
     usuario,senha,confsenha=get_register_information(ui)
     print(usuario,senha,confsenha)
 
+    diretorio= str(QFileDialog.getExistingDirectory(None,"Selecione o Diretorio que você deseja compartilhar")) # seleceção do diretorio
+    print(diretorio)
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -32,6 +37,6 @@ if __name__ == "__main__":
     ui.Login.clicked.connect(login) # botao de login
     ui.Registrar.clicked.connect(registrar) # botao de registro
     #############################
-    
+
     MainWindow.show()
     sys.exit(app.exec_())
