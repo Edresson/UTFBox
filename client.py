@@ -161,7 +161,7 @@ def SolicitarDownload(filename):
 def startwatcher():
     w = Watcher()
     w.run()
-
+@threaded
 def udpthread():
     global baixar
     udp = socket(AF_INET, SOCK_DGRAM)

@@ -1,11 +1,11 @@
 from Gui import *
-
+import cliente 
 from PyQt5.QtWidgets import QFileDialog
 
 import os.path
 
 DIRETORIO_PADRAO = 'D:\Observada\Cliente\\'
-
+# cliente.DIRECTORY_TO_WATCH = lalwdlawdw/awdawawdaw
 def encontrar_string(path, string):
     with open((DIRETORIO_PADRAO + path),'r') as f:
         texto=f.readlines()
