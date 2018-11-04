@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QFileDialog
 
 import os.path
 
-DIRETORIO_PADRAO = 'D:\Observada\Cliente'
+DIRETORIO_PADRAO = 'D:\Observada\Cliente\\'
 
 def encontrar_string(path, string):
     with open((DIRETORIO_PADRAO + path),'r') as f:

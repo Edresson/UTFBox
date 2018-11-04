@@ -12,9 +12,9 @@ from socket import *
 import os.path
 
 
-DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Cliente/"
+DIRECTORY_TO_WATCH = 'D:\Observada\Cliente\\'
 SERVER= '127.0.0.1'
-PORT= 80
+PORT= 8085
 PORTUDP = 5000
 baixar = []
 
