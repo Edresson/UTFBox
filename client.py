@@ -12,9 +12,9 @@ from socket import *
 import os.path
 
 
-DIRECTORY_TO_WATCH = 'D:/Observada/Cliente/'
+DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Cliente/"
 SERVER= '127.0.0.1'
-PORT= 8085
+PORT= 80
 PORTUDP = 5000
 baixar = []
 
@@ -161,7 +161,7 @@ def SolicitarDownload(filename):
 def startwatcher():
     w = Watcher()
     w.run()
-@threaded
+
 def udpthread():
     global baixar
     udp = socket(AF_INET, SOCK_DGRAM)

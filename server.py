@@ -16,9 +16,10 @@ sys.setdefaultencoding('utf8')
 
 udpserver = ''
 clientes =[]
-DIRECTORY_TO_WATCH = 'D:\Observada\Servidor\\'
+DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"
+
 #port number > 5000
-serverPort = 8085
+serverPort = 80
 PORTUDP = 5000
 
 ignoreclient = False
