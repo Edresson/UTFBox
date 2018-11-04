@@ -53,8 +53,13 @@ def cria_diretorio_padrao():
         arquivo_direc = open(nome_direc, 'r+')
     except FileNotFoundError:
         arquivo_direc = open(nome_direc, 'w+')
-        arquivo_direc.writelines(u'D:\Observada\Cliente\\\n')
-    arquivo_direc.close()      
+        arquivo_direc.writelines(u'D:/Observada/Cliente/\n')
+    arquivo_direc.close()
+    if os.path.isdir('D:/Observada/Cliente/admin'): # vemos de este diretorio ja existe
+        print ('Ja existe uma pasta com esse nome!')
+    else:
+        os.mkdir('D:/Observada/Cliente/admin') # aqui criamos a pasta caso nao exista
+        print ('Pasta criada com sucesso!')      
 
 
 def get_login_information(ui):
@@ -71,11 +76,15 @@ def login():
     global ui
     usuario,senha=get_login_information(ui)
     senhaencontrada = ler_linha('senhas.txt', (encontrar_string('usuarios.txt', usuario)))
+    diretorioencontrado = ler_linha('diretorios.txt', (encontrar_string('usuarios.txt', usuario)))
     print(senha)
     print(senhaencontrada)
+    print(diretorioencontrado)
+    diretorioencontrado=diretorioencontrado.replace('\n', '')
     senhaencontrada=senhaencontrada.replace('\n', '')
     if str(senhaencontrada)==str(senha) :
         print('login efetuado com sucesso')
+        change_dir(diretorioencontrado)
     else:
         print('Usuário não encontrado')
 
