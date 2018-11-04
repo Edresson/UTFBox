@@ -1,11 +1,13 @@
 from Gui import *
-import cliente 
+import client
 from PyQt5.QtWidgets import QFileDialog
 
 import os.path
 
-DIRETORIO_PADRAO = 'D:\Observada\Cliente\\'
-# cliente.DIRECTORY_TO_WATCH = lalwdlawdw/awdawawdaw
+DIRETORIO_PADRAO = 'D:/Observada/Cliente/'
+def change_dir(newdir):
+    client.DIRECTORY_TO_WATCH = newdir
+
 def encontrar_string(path, string):
     with open((DIRETORIO_PADRAO + path),'r') as f:
         texto=f.readlines()
@@ -45,7 +47,14 @@ def cria_diretorio_padrao():
     except FileNotFoundError:
         arquivo_pass = open(nome_senhas, 'w+')
         arquivo_pass.writelines(u'admin\n')
-    arquivo_pass.close()    
+    arquivo_pass.close()
+    try:
+        nome_direc = DIRETORIO_PADRAO + 'diretorios.txt'
+        arquivo_direc = open(nome_direc, 'r+')
+    except FileNotFoundError:
+        arquivo_direc = open(nome_direc, 'w+')
+        arquivo_direc.writelines(u'D:\Observada\Cliente\\\n')
+    arquivo_direc.close()      
 
 
 def get_login_information(ui):
@@ -93,11 +102,19 @@ def registrar():
     arquivo = open(diretorio, 'w') # Abre novamente o arquivo (escrita)
     arquivo.writelines(conteudo)    # escreva o conteúdo criado anteriormente nele.
     arquivo.close()
-    #diretorio= str(QFileDialog.getExistingDirectory(None,"Selecione o Diretorio que você deseja compartilhar")) # seleceção do diretorio
-    if os.path.isdir(DIRETORIO_PADRAO + usuario): # vemos de este diretorio ja existe
+    diretoriousuario= str(QFileDialog.getExistingDirectory(None,"Selecione o Diretorio que você deseja compartilhar")) # seleceção do diretorio
+    #GRAVA DIRETORIO
+    diretorio = DIRETORIO_PADRAO + 'diretorios.txt'
+    arquivo = open(diretorio, 'r') # Abra o arquivo (leitura)
+    conteudo = arquivo.readlines()
+    conteudo.append(diretoriousuario + '\n')   # insira seu conteúdo
+    arquivo = open(diretorio, 'w') # Abre novamente o arquivo (escrita)
+    arquivo.writelines(conteudo)    # escreva o conteúdo criado anteriormente nele.
+    arquivo.close()
+    if os.path.isdir(diretoriousuario +'/'+ usuario): # vemos de este diretorio ja existe
         print ('Ja existe uma pasta com esse nome!')
     else:
-        os.mkdir(DIRETORIO_PADRAO+ usuario) # aqui criamos a pasta caso nao exista
+        os.mkdir(diretoriousuario +'/'+ usuario) # aqui criamos a pasta caso nao exista
         print ('Pasta criada com sucesso!')
     print('Voltar para página principal')
 

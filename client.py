@@ -12,7 +12,7 @@ from socket import *
 import os.path
 
 
-DIRECTORY_TO_WATCH = 'D:\Observada\Cliente\\'
+DIRECTORY_TO_WATCH = 'D:/Observada/Cliente/'
 SERVER= '127.0.0.1'
 PORT= 8085
 PORTUDP = 5000
