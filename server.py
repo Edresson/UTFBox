@@ -10,6 +10,10 @@ import os
 
 from utils import *
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 udpserver = ''
 clientes =[]
 DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"

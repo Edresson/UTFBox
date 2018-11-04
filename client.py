@@ -8,6 +8,10 @@ from socket import *
 
 from utils import *
 
+from socket import *
+import os.path
+
+
 DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Cliente/"
 SERVER= '127.0.0.1'
 PORT= 80
