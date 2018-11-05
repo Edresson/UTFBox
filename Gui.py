@@ -68,6 +68,12 @@ class Ui_MainWindow(object):
         self.labelconfsenha.setGeometry(QtCore.QRect(20, 110, 101, 20))
         self.labelconfsenha.setObjectName("labelconfsenha")
         self.stackedWidget.addWidget(self.stackedWidgetPage2)
+        self.page = QtWidgets.QWidget()
+        self.page.setObjectName("page")
+        self.bt_logout = QtWidgets.QPushButton(self.page)
+        self.bt_logout.setGeometry(QtCore.QRect(90, 130, 80, 25))
+        self.bt_logout.setObjectName("bt_logout")
+        self.stackedWidget.addWidget(self.page)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -87,6 +93,7 @@ class Ui_MainWindow(object):
         self.labelsenha.setText(_translate("MainWindow", "Senha:"))
         self.label_3.setText(_translate("MainWindow", "Usuario:"))
         self.labelconfsenha.setText(_translate("MainWindow", "Confirmar senha:"))
+        self.bt_logout.setText(_translate("MainWindow", "LogOut"))
 
 
 if __name__ == "__main__":

@@ -209,6 +209,21 @@
       </property>
      </widget>
     </widget>
+    <widget class="QWidget" name="page">
+     <widget class="QPushButton" name="bt_logout">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>130</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>LogOut</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
  </widget>
