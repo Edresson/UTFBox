@@ -14,6 +14,9 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+import pickle
+
+
 udpserver = ''
 clientes =[]
 DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"
@@ -83,7 +86,11 @@ class Handler(FileSystemEventHandler):
                     udpserver.sendto(msg.encode('utf-8'),i)
                 print("Received created event - %s." % event.src_path)
 
-            elif event.event_type == 'modified':
+
+
+
+
+            elif event.event_type == 'modified':a
                 #EnviarArquivo(event.src_path)
                 # Taken any action here when a file is modified.
                 for i in clientes:
@@ -194,7 +201,12 @@ def conectado(connectionSocket, clientAddress):
                 connectionSocket.sendto('nok'.encode('utf-8'),clientAddress)
             print(Usuarios)
 
-
+        elif comando[:len('checkupdate:')] == 'checkupdate:':
+                user=comando.replace('checkupdate:','') 
+                path = os.path.join(DIRECTORY_TO_WATCH,user)
+                onlyfiles = [[f,os.path.getmtime(os.path.join(path, f))] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+                data=pickle.dumps(onlyfiles)
+                connectionSocket.sendto(data,clientAddress)
 
 
         elif comando[:9] =='download:':
@@ -236,7 +248,5 @@ if __name__ == '__main__':
     startwatcher()
     udpthread()
     #when a connection request is recieved, a new socket is created
-    while 1:
-        connectionSocket, clientAddress = serverSocket.accept()
-        conectado(connectionSocket, clientAddress)
-        
+   
+
