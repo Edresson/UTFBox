@@ -225,6 +225,24 @@ def conectado(connectionSocket, clientAddress):
             #print "Server received <" + str(serverResponse) + "> bytes."
             #Closing the test file
             testFileObj.close()
+        elif comando[:len('compartilhar:')]== 'compartilhar:':
+            userexiste= False
+            comando = comando.replace('compartilhar:','')
+            userarq,usercomp,filecomp = comando.split(':')
+            for i in Usuarios:
+                user,_ = i.split(':')
+                print(user,usercomp)
+                if user == usercomp:
+                    userexiste = True
+            if userexiste:
+                link= 'ln '+ os.path.join(DIRECTORY_TO_WATCH,os.path.join(userarq,filecomp))+' '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(usercomp,filecomp))
+                os.system(link)
+                print('link simbolico criado', link)
+                connectionSocket.sendto('ok'.encode('utf-8'),clientAddress)
+            else:
+                connectionSocket.sendto('nok'.encode('utf-8'),clientAddress)
+
+       
 
 
             

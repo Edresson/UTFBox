@@ -213,7 +213,7 @@
      <widget class="QPushButton" name="bt_logout">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>100</x>
         <y>180</y>
         <width>80</width>
         <height>25</height>
@@ -227,7 +227,7 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>90</y>
+        <y>40</y>
         <width>181</width>
         <height>25</height>
        </rect>
@@ -236,7 +236,97 @@
        <string>Alterar Pasta Compartilhada</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="bt_proxpage">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>110</y>
+        <width>131</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Compartilhar arquivo</string>
+      </property>
+     </widget>
     </widget>
+    <widget class="QWidget" name="page_2">
+     <widget class="QPushButton" name="bt_compartilhar">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>130</y>
+        <width>91</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Compartilhar</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="usuarioacomp">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>50</y>
+        <width>161</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>271</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Usuario com que você quer compartilhar:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_selefile">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>90</y>
+        <width>121</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Selecione o Arquivo</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_voltar">
+      <property name="geometry">
+       <rect>
+        <x>89</x>
+        <y>180</y>
+        <width>71</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Voltar</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_warning">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>220</y>
+      <width>271</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
  </widget>
