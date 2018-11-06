@@ -71,8 +71,11 @@ class Ui_MainWindow(object):
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
         self.bt_logout = QtWidgets.QPushButton(self.page)
-        self.bt_logout.setGeometry(QtCore.QRect(90, 130, 80, 25))
+        self.bt_logout.setGeometry(QtCore.QRect(110, 180, 80, 25))
         self.bt_logout.setObjectName("bt_logout")
+        self.bt_changedir = QtWidgets.QPushButton(self.page)
+        self.bt_changedir.setGeometry(QtCore.QRect(60, 90, 181, 25))
+        self.bt_changedir.setObjectName("bt_changedir")
         self.stackedWidget.addWidget(self.page)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -94,6 +97,7 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Usuario:"))
         self.labelconfsenha.setText(_translate("MainWindow", "Confirmar senha:"))
         self.bt_logout.setText(_translate("MainWindow", "LogOut"))
+        self.bt_changedir.setText(_translate("MainWindow", "Alterar Pasta Compartilhada"))
 
 
 if __name__ == "__main__":

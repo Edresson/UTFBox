@@ -8,17 +8,13 @@ from socket import *
 
 from utils import *
 
-from socket import *
-import os.path
-
-
 DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Cliente/"
 SERVER= '127.0.0.1'
 PORT= 80
 PORTUDP = 5000
 baixar = []
 
-blockwatchdog = False
+
 
 #Make a TCP socket connection to server at <IP> and <PORT>
 #Example code followed from: https://pymotw.com/2/socket/tcp.html
@@ -39,18 +35,18 @@ def connect_to_server_tcp(ip, port):
 @threaded
 def EnviarArquivo(arquivo):
     
-    global  DIRECTORY_TO_WATCH
+        
     #Bytes in Test File
-    numBytesFile = determine_num_bytes(os.path.abspath(arquivo))
+    numBytesFile = determine_num_bytes(arquivo)
 
     #Opening the test file
     testFileObj = open_text_file(os.path.abspath(arquivo))
 
     #Connecting to the server
     sock = connect_to_server_tcp(SERVER, PORT)
-    arquivopath = arquivo.replace(DIRECTORY_TO_WATCH,'')#usado para poder upar pastas    
+
     #Read the text file to the socket
-    read_text_file(sock, testFileObj, numBytesFile,arquivopath)
+    read_text_file(sock, testFileObj, numBytesFile)
 
     #serverResponse = sock.recv(1024)
     #print "Server received <" + str(serverResponse) + "> bytes."
@@ -65,29 +61,57 @@ def EnviarArquivo(arquivo):
 def RemoverArquivo(arquivo):
     #Connecting to the server
     sock = connect_to_server_tcp(SERVER, PORT)
-    sock.send(arquivo.encode('utf-8') )#envia o nome do arquivo
+    sock.send(os.path.basename(arquivo).encode('utf-8') )#envia o nome do arquivo
     
 
-@threaded
+
+class Watcher:
+    
+    def __init__(self):
+        self.observer = Observer()
+
+    def run(self):
+        event_handler = Handler()
+        self.observer.schedule(event_handler, DIRECTORY_TO_WATCH, recursive=True)
+        self.observer.start()
+        try:
+            while True:
+                time.sleep(5)
+        except:
+            self.observer.stop()
+            print("Error")
+
+        self.observer.join()
+
+
+class Handler(FileSystemEventHandler):
+
+    @staticmethod
+    def on_any_event(event):
+        if event.is_directory:
+            return None
+
+        elif event.event_type == 'created':
+            EnviarArquivo('upload:'+event.src_path)
+            # Take any action here when a file is first created.
+            print("Received created event - %s." % event.src_path)
+
+        elif event.event_type == 'modified':
+            EnviarArquivo('upload:'+event.src_path)
+            # Taken any action here when a file is modified.
+            print("Received modified event - %s." % event.src_path)
+        elif event.event_type == 'deleted':
+            RemoverArquivo('rm -rf '+event.src_path)
+            # Taken any action here when a file is modified.
+            print("Received deleted event - %s." % event.src_path)
+
 def SolicitarDownload(filename):
-    global blockwatchdog
-    global  DIRECTORY_TO_WATCH
-    blockwatchdog = True
-    time.sleep(2)
-    print('Fazendo Download')
     connectionSocket = connect_to_server_tcp(SERVER, PORT)
-    mensagem = 'download:'+filename
-    connectionSocket.sendall( mensagem.encode('utf-8') )
+    connectionSocket.sendall('download:'+filename.encode('utf-8') )
     _= connectionSocket.recv(1024)
     connectionSocket.sendall('ok'.encode('utf-8') )
-    filename= os.path.join(DIRECTORY_TO_WATCH,filename)
-    print('Filename: ', filename)
-    if not os.path.exists(os.path.dirname(filename)):
-                try:
-                    os.makedirs(os.path.dirname(filename))
-                except OSError as exc: # Guard against race condition
-                    pass
-    file = open(filename, "w+")
+
+    file = open(DIRECTORY_TO_WATCH+filename, "w+")
     #get the first line of the file
     clientInput = connectionSocket.recv(1024).decode('utf-8')
     bytesReceived = 0
@@ -104,14 +128,14 @@ def SolicitarDownload(filename):
         connectionSocket.sendall(str(bytesReceived).encode('utf-8'))
         file.close()
         connectionSocket.close()
-    time.sleep(1)
-    blockwatchdog = False
-    print('Download Acabou') 
-    
 
 
 
 @threaded
+def startwatcher():
+    w = Watcher()
+    w.run()
+
 def udpthread():
     global baixar
     udp = socket(AF_INET, SOCK_DGRAM)
@@ -127,13 +151,11 @@ def udpthread():
 
         elif msg[:7] == 'update:':
             print("UPDATE: ",msg.replace('update:',''))
-            SolicitarDownload(msg.replace('update:',''))
+            baixar.append(msg.replace('update:',''))
         elif msg[:7] == 'delete:':
-            try:
-                print("REMOVE", os.path.join(DIRECTORY_TO_WATCH,msg.replace('delete:','')))
-                os.remove(os.path.join(DIRECTORY_TO_WATCH,msg.replace('delete:','')))
-            except:
-                pass
+            print("REMOVE", msg)
+            #os.remove(DIRECTORY_TO_WATCH+msg.replace('update:',''))
+        
         
 
 if __name__ == '__main__':

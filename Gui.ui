@@ -213,14 +213,27 @@
      <widget class="QPushButton" name="bt_logout">
       <property name="geometry">
        <rect>
-        <x>90</x>
-        <y>130</y>
+        <x>110</x>
+        <y>180</y>
         <width>80</width>
         <height>25</height>
        </rect>
       </property>
       <property name="text">
        <string>LogOut</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bt_changedir">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>90</y>
+        <width>181</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Alterar Pasta Compartilhada</string>
       </property>
      </widget>
     </widget>

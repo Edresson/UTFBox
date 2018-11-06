@@ -51,7 +51,8 @@ def connect_to_server_tcp(ip, port):
 
 @threaded
 def EnviarArquivo(arquivo):
-    print('Enviar arquivo')
+    
+    print('Enviar arquivo: ', arquivo)
     
     global  DIRECTORY_TO_WATCH,Usuario
     #Bytes in Test File
@@ -72,7 +73,7 @@ def EnviarArquivo(arquivo):
     #print "Server received <" + str(serverResponse) + "> bytes."
     #Closing the test file
     testFileObj.close()
-
+    print('Acabou de enviar:', arquivo)
     #Close the socket
     sock.close()
 
@@ -90,16 +91,16 @@ def SolicitarDownload(filename):
     global  DIRECTORY_TO_WATCH,Usuario
     blockwatchdog = True
     time.sleep(2)
-    print('Fazendo Download')
+    print('Fazendo Download:',filename)
     connectionSocket = connect_to_server_tcp(SERVER, PORT)
-    print(filename)
+    #print(filename)
     mensagem = 'download:'+Usuario+':'+filename
     connectionSocket.sendall( mensagem.encode('utf-8') )
     _= connectionSocket.recv(1024)
     connectionSocket.sendall('ok'.encode('utf-8') )
     filename=filename.replace(Usuario+'/','')
     filename= os.path.join(DIRECTORY_TO_WATCH,filename)
-    print('Filename: ', filename)
+    #print('Filename: ', filename)
     if not os.path.exists(os.path.dirname(filename)):
                 try:
                     os.makedirs(os.path.dirname(filename))
@@ -125,7 +126,7 @@ def SolicitarDownload(filename):
         
     time.sleep(1)
     blockwatchdog = False
-    print('Download Acabou') 
+    print('Download Acabou: ', filename) 
     
 
 
@@ -201,11 +202,13 @@ class Handler(FileSystemEventHandler):
 
             elif event.event_type == 'created':
                 EnviarArquivo(event.src_path)
+                time.sleep(1) 
                 # Take any action here when a file is first created.
                 print("Received created event - %s." % event.src_path)
 
             elif event.event_type == 'modified':
                 EnviarArquivo(event.src_path)
+                time.sleep(1) 
                 # Taken any action here when a file is modified.
                 print("Received modified event - %s." % event.src_path)
             elif event.event_type == 'deleted':
@@ -234,7 +237,7 @@ def registrar_se():
     ui.stackedWidget.setCurrentIndex(1)
 
 def login():
-    global ui,Usuario,nologout
+    global ui,Usuario,nologout,DIRECTORY_TO_WATCH
     nologout = True 
     sock = connect_to_server_tcp(SERVER, PORT)
     usuario,senha=get_login_information(ui)
@@ -243,13 +246,59 @@ def login():
     comando= sock.recv(1024).decode('utf-8')
     comando = comando.replace('\r\n\r\n','')
     if comando == 'ok':
+        Usuario = usuario
         udpthread()
         print('tudo certo')
         for i in conf_file:
             if i.split(':')[0] == usuario:
                 startwatcher(i.split(':')[1])
         ui.stackedWidget.setCurrentIndex(2)
-        Usuario = usuario
+        sock2 = connect_to_server_tcp(SERVER, PORT)
+        msg = 'checkupdate:'+Usuario
+        sock2.send(msg.encode('utf-8') )
+        comando= sock2.recv(1024)
+        arquivos =  pickle.loads(comando)
+        listanome = [] 
+        path = DIRECTORY_TO_WATCH
+        onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+        
+        for n,t in arquivos:
+            listanome.append(n)
+            if n in onlyfiles:
+                indice= onlyfiles.index(n)
+                tempo = os.path.getmtime(os.path.join(path,onlyfiles[indice]))
+                if tempo == t:
+                    continue
+                elif tempo > t:
+                    EnviarArquivo(os.path.join(path, n))
+                    time.sleep(1) 
+                    print('atualizar mandar para o servidor ',n) 
+                    #upload
+                elif tempo < t:
+                    SolicitarDownload(os.path.join(Usuario, n))
+                    time.sleep(1) 
+                    print('atualizar, baixar do servidor',n)
+                    #Download
+        
+        downloads= set(listanome) -set(onlyfiles)
+        uploads = set(onlyfiles) - set(listanome)
+
+        for i in uploads:
+            print( "upa ",i)
+            EnviarArquivo(os.path.join(path, i))
+            time.sleep(1) 
+            #upa
+            pass
+        for i in downloads:
+            print( 'baixar: ',i)
+            SolicitarDownload(os.path.join(Usuario, i))
+            time.sleep(1) 
+            
+            # baixa 
+            pass
+                
+        
+        
     else:
         print('login incorreto: ',comando)
     
@@ -257,6 +306,18 @@ def login():
 def logout():
     global nologout
     nologout = False
+    ui.stackedWidget.setCurrentIndex(0)
+
+def change_dir():
+    global Usuario,DIRECTORY_TO_WATCH,ui
+    logout()
+    diretorio= str(QFileDialog.getExistingDirectory(None,"Selecione o Diretorio que você deseja compartilhar")) # seleceção do diretorio
+    pos=conf_file.index(Usuario+':'+DIRECTORY_TO_WATCH)
+    conf_file[pos]= Usuario+':'+diretorio
+    saveconf()
+    ui.stackedWidget.setCurrentIndex(0)
+
+
 
 def registrar():
     global ui
@@ -278,8 +339,9 @@ def registrar():
         conf_file.append(usuario+':'+diretorio)
         saveconf()
         #startwatcher(diretorio)
-        ui.stackedWidget.setCurrentIndex(0)
-        print(diretorio)
+        ui.stackedWidget.setCurrentIndex(0) # return for login
+
+
 
 if __name__ == "__main__":
     import sys
@@ -293,6 +355,7 @@ if __name__ == "__main__":
     ui.Login.clicked.connect(login) # botao de login
     ui.Registrar.clicked.connect(registrar) # botao de registro
     ui.bt_logout.clicked.connect(logout)
+    ui.bt_changedir.clicked.connect(change_dir)
 
     #############################
 

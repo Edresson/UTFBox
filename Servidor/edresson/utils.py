@@ -15,9 +15,8 @@ def open_text_file(filePath):
     #Try to open the file, otherwise return the exception if it cant be opened or isn't found
     try:
         fileObj = open(filePath, 'r')
-        #print ("Reading <" + str(filePath).upper() + "> from client file-system.")
+        print ("Reading <" + str(filePath).upper() + "> from client file-system.")
     except Exception as e:
-        pass
         print("Error for filepath " + str(filePath) + ":, " + str(e))
 
     return fileObj
@@ -29,10 +28,9 @@ def determine_num_bytes(filePath):
     #Try to determine byte size of file, otherwise return the exception if it cant be opened or isn't found
     try:
         fileNumBytes = os.path.getsize(filePath)
-        #print ("Total number of bytes in <" + str(filePath).upper() + "> = <" + str(fileNumBytes) + ">")
+        print ("Total number of bytes in <" + str(filePath).upper() + "> = <" + str(fileNumBytes) + ">")
     except Exception as e:
-        pass
-        #print("Error for filepath " + str(filePath) + ":, " + str(e) + "\n")
+        print("Error for filepath " + str(filePath) + ":, " + str(e) + "\n")
 
     return fileNumBytes
 
@@ -40,25 +38,16 @@ def determine_num_bytes(filePath):
 #Read the <TEXT FILE> from file system and then write to the socket. When the
 #last text byte is encountered, the program will automatically append the character sequence “\r\n\r\n”
 # that indicates end-of-file (EOF) and write to the socket.
-def read_text_file(sock, fileObj, numBytesFile,arquivopath=None):
-    #print('Arquivopath: ',arquivopath)
-    try:
-        msg= 'upload:'+arquivopath
-    except:
-        msg= 'upload:'+fileObj.name
-    #print(msg)
-    sock.send(msg.encode('utf-8') )#envia o nome do arquivo
+def read_text_file(sock, fileObj, numBytesFile):
+    sock.send(os.path.basename(fileObj.name).encode('utf-8') )#envia o nome do arquivo
     _= sock.recv(1024)# receber confirmacao continua
-    try:
-        for line in fileObj:
-            try:
-                # Send data
-                message = line.encode('utf-8')
-                sock.sendall(message)
-            except Exception as e:
-                print( "Error :" , str(e))
-    except:
-        print("Codificação do arquivo é invalida, apenas UTF-8 é permitida")
+    for line in fileObj:
+        try:
+            # Send data
+            message = line.encode('utf-8')
+            sock.sendall(message)
+        except Exception as e:
+            print( "Error " + str(e))
     #When the last text byte is encountered, automatically append the character sequence “\r\n\r\n” that indicates end-of-file (EOF) and write to the socket
     sock.sendall("\r\n\r\n".encode('utf-8'))
 
@@ -69,4 +58,6 @@ def test_file_open(filePath):
 def test_determine_num_bytes(filePath):
     numBytesFile = determine_num_bytes(filePath)
     return numBytesFile
+
+
 

@@ -14,6 +14,9 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+import pickle
+
+
 udpserver = ''
 clientes =[]
 DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"
@@ -194,7 +197,12 @@ def conectado(connectionSocket, clientAddress):
                 connectionSocket.sendto('nok'.encode('utf-8'),clientAddress)
             print(Usuarios)
 
-
+        elif comando[:len('checkupdate:')] == 'checkupdate:':
+                user=comando.replace('checkupdate:','') 
+                path = os.path.join(DIRECTORY_TO_WATCH,user)
+                onlyfiles = [[f,os.path.getmtime(os.path.join(path, f))] for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+                data=pickle.dumps(onlyfiles)
+                connectionSocket.sendto(data,clientAddress)
 
 
         elif comando[:9] =='download:':
