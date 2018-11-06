@@ -65,7 +65,7 @@ def EnviarArquivo(arquivo):
     sock = connect_to_server_tcp(SERVER, PORT)
     arquivopath=None
     arquivopath = arquivo.replace(DIRECTORY_TO_WATCH,'')#usado para poder upar pastas
-    arquivopath=os.path.join(Usuario,arquivopath.replace('/',''))   
+    arquivopath=os.path.join(Usuario,arquivopath.replace(os.path.join('sobarragambiarra123-','').replace('sobarragambiarra123-',''),''))   
     #Read the text file to the socket
     read_text_file(sock, testFileObj, numBytesFile,arquivopath)
 
@@ -81,6 +81,10 @@ def EnviarArquivo(arquivo):
 @threaded
 def RemoverArquivo(arquivo):
     #Connecting to the server
+    global Usuario
+    arquivo = os.path.join(Usuario,arquivo.replace(os.path.join('sobarragambiarra123-','').replace('sobarragambiarra123-',''),''))
+    print('MAndou remover: ',arquivo)
+    arquivo='remover:'+arquivo
     sock = connect_to_server_tcp(SERVER, PORT)
     sock.send(arquivo.encode('utf-8') )#envia o nome do arquivo
     
@@ -98,7 +102,7 @@ def SolicitarDownload(filename):
     connectionSocket.sendall( mensagem.encode('utf-8') )
     _= connectionSocket.recv(1024)
     connectionSocket.sendall('ok'.encode('utf-8') )
-    filename=filename.replace(Usuario+'/','')
+    filename=filename.replace( os.path.join(Usuario,''),'')
     filename= os.path.join(DIRECTORY_TO_WATCH,filename)
     #print('Filename: ', filename)
     if not os.path.exists(os.path.dirname(filename)):
@@ -133,7 +137,7 @@ def SolicitarDownload(filename):
 
 @threaded
 def udpthread():
-    global baixar,DIRECTORY_TO_WATCH,Usuario,nologout
+    global baixar,DIRECTORY_TO_WATCH,Usuario,nologout,blockwatchdog
     udp = socket(AF_INET, SOCK_DGRAM)
     destino = (SERVER,PORTUDP)
     udp.sendto('update'.encode('utf-8'),destino)
@@ -144,26 +148,29 @@ def udpthread():
         if msg[:7] =='create:' :
             print("Create", msg)
             msg2 = msg.replace('create:','')
-            if msg2[:len(Usuario)+1]== Usuario+'/':
+            if msg2[:len(Usuario)+1]== os.path.join(Usuario,''):
                 print("Create", msg2)
                 SolicitarDownload(msg2)
             
         elif msg[:7] == 'update:':
             print("UPDATE: ",msg.replace('update:',''))
             msg2 = msg.replace('update:','')
-            if msg2[:len(Usuario)+1]== Usuario+'/':
+            if msg2[:len(Usuario)+1]== os.path.join(Usuario,''):
                 SolicitarDownload(msg2)
                 print("UPDATE: ",msg2)
          
         elif msg[:7] == 'delete:':
+            blockwatchdog = True
             try:
                 
                 msg2 = msg.replace('delete:','')
-                if msg2[:len(Usuario)+1]== Usuario+'/':
-                    os.remove(os.path.join(DIRECTORY_TO_WATCH,msg2))
-                    print("REMOVE", os.path.join(DIRECTORY_TO_WATCH,msg2))
+                print('delete:', msg2,msg2[:len(Usuario)+1]== os.path.join(Usuario,''))
+                if msg2[:len(Usuario)+1]== os.path.join(Usuario,''):
+                    os.remove(os.path.join(DIRECTORY_TO_WATCH,msg2.replace(os.path.join(Usuario,''),'')))
+                    print("REMOVE", os.path.join(DIRECTORY_TO_WATCH,msg2.replace(os.path.join(Usuario,''))))
             except:
                 pass
+            blockwatchdog = False
         
 
 
@@ -213,7 +220,7 @@ class Handler(FileSystemEventHandler):
                 print("Received modified event - %s." % event.src_path)
             elif event.event_type == 'deleted':
                 arquivo = event.src_path.replace(DIRECTORY_TO_WATCH,'')
-                RemoverArquivo('remover:'+arquivo)
+                RemoverArquivo(arquivo)
                 # Taken any action here when a file is modified.
                 print("Received deleted event - %s." % event.src_path)
                 

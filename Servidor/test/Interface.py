@@ -264,4 +264,97 @@ def login():
             listanome.append(n)
             if n in onlyfiles:
                 indice= onlyfiles.index(n)
-                tempo = os.path.getmtime(os.path.join(p
+                tempo = os.path.getmtime(os.path.join(path,onlyfiles[indice]))
+                if tempo == t:
+                    continue
+                elif tempo > t:
+                    EnviarArquivo(os.path.join(path, n))
+                    print('atualizar mandar para o servidor ',n) 
+                    #upload
+                elif tempo < t:
+                    SolicitarDownload(os.path.join(Usuario, n))
+                    print('atualizar, baixar do servidor',n)
+                    #Download
+        
+        downloads= set(listanome) -set(onlyfiles)
+        uploads = set(onlyfiles) - set(listanome)
+
+        for i in uploads:
+            print( "upa ",i)
+            EnviarArquivo(os.path.join(path, i))
+            #upa
+            pass
+        for i in downloads:
+            print( 'baixar: ',i)
+            SolicitarDownload(os.path.join(Usuario, i))
+            
+            
+            # baixa 
+            pass
+                
+        
+        
+    else:
+        print('login incorreto: ',comando)
+    
+
+def logout():
+    global nologout
+    nologout = False
+
+def registrar():
+    global ui
+    usuario,senha,confsenha=get_register_information(ui)
+    print(usuario,senha,confsenha)
+    if confsenha != senha:
+        print("as senhas não estão iguais")
+    if usuario == '' or senha =='' or confsenha == '':
+        print("Preencha todos os campos")
+    sock = connect_to_server_tcp(SERVER, PORT)
+    msg = 'createuser:'+usuario+':'+senha
+    sock.send(msg.encode('utf-8') )
+    comando= sock.recv(1024).decode('utf-8')
+    comando = comando.replace('\r\n\r\n','')
+    if comando == 'ok':
+        
+        print('tudo certo')
+        diretorio= str(QFileDialog.getExistingDirectory(None,"Selecione o Diretorio que você deseja compartilhar")) # seleceção do diretorio
+        conf_file.append(usuario+':'+diretorio)
+        saveconf()
+        #startwatcher(diretorio)
+        ui.stackedWidget.setCurrentIndex(0)
+        print(diretorio)
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+
+    #### buttons connections ####
+    ui.Registrarse.clicked.connect(registrar_se) # o botao para ir para pagina de registro
+    ui.Login.clicked.connect(login) # botao de login
+    ui.Registrar.clicked.connect(registrar) # botao de registro
+    ui.bt_logout.clicked.connect(logout)
+
+    #############################
+
+    MainWindow.show()
+    sys.exit(app.exec_())
+
+olá 
+aaaaa
+
+
+
+
+
+
+
+
+
+
+
+
+

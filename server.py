@@ -19,8 +19,8 @@ import pickle
 
 udpserver = ''
 clientes =[]
-DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"
-
+#DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"
+DIRECTORY_TO_WATCH = os.path.join(os.getcwd(),os.path.join('Servidor',''))
 #port number > 5000
 serverPort = 80
 PORTUDP = 5000
