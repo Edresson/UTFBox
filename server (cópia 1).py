@@ -16,7 +16,7 @@ sys.setdefaultencoding('utf8')
 
 import pickle
 
-ignorecp = False
+
 udpserver = ''
 clientes =[]
 #DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"
@@ -65,7 +65,7 @@ class Handler(FileSystemEventHandler):
 
     @staticmethod
     def on_any_event(event):
-        global udpserver,clientes,ignoreclient,ignorecp
+        global udpserver,clientes,ignoreclient
         print(ignoreclient)
         if ignoreclient == False:
             src_path = event.src_path.replace(DIRECTORY_TO_WATCH,'')
@@ -84,9 +84,6 @@ class Handler(FileSystemEventHandler):
                         continue'''
                     msg = 'create:'+src_path
                     udpserver.sendto(msg.encode('utf-8'),i)
-                if ignorecp == False:    
-                    print("Update compartilhado",src_path,ignorecp)
-                    updatecomps(src_path)  
                 print("Received created event - %s." % event.src_path)
 
             elif event.event_type == 'modified':
@@ -99,9 +96,6 @@ class Handler(FileSystemEventHandler):
                     msg= 'update:'+src_path
                     udpserver.sendto(msg.encode('utf-8'),i)
                 print("Received modified event - %s." % event.src_path)
-                if ignorecp == False:
-                    print("Update compartilhado",src_path,ignorecp)
-                    updatecomps(src_path) 
 
             elif event.event_type == 'deleted':
                 for i in clientes:
@@ -129,32 +123,6 @@ def udpthread():
         clientes.append(cliente)
         print('clientes',clientes)
 
-def loadcomps(user):
-    try:
-        with open(user+ '.comp', 'rb') as fp:
-            comp = pickle.load(fp)
-    except:
-        comp = [] 
-    return comp            
-
-def savecomps(user,lista):
-    with open(user+ '.comp', 'wb') as fp:
-        pickle.dump(lista,fp)
-@threaded
-def updatecomps(path):
-    global DIRECTORY_TO_WATCH,ignorecp
-    ignorecp = True
-    path = path.replace(DIRECTORY_TO_WATCH,'')
-    user= os.path.dirname(path)
-    comp = loadcomps(user)
-    arquivo= os.path.basename(path)
-    for i in comp:
-        if i[1] == arquivo:
-            cp = 'cp -rf '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(user,arquivo))+' '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(i[0],arquivo))
-            print(cp)
-            os.system(cp)#copiar;;
-    time.sleep(1)
-    ignorecp = False
 @threaded       
 def conectado(connectionSocket, clientAddress):
         global ignoreclient,DIRECTORY_TO_WATCH,Usuarios
@@ -196,7 +164,7 @@ def conectado(connectionSocket, clientAddress):
                 connectionSocket.sendto(str(bytesReceived).encode('utf-8'),clientAddress)
                 file.close()
                 connectionSocket.close()
-            time.sleep(2)
+            time.sleep(1)
             ignoreclient = False
             print(filename,DIRECTORY_TO_WATCH)
             print('Upload Concluido')
@@ -210,18 +178,10 @@ def conectado(connectionSocket, clientAddress):
                 pass
         elif comando[:11] =='createuser:':
             usersenha=comando.replace('createuser:','')
-            user,senha=usersenha.split(':')
-            userexiste = False
-            for i in Usuarios:
-                if i[:len(user)]== user:
-                    userexiste = True
-            if userexiste:
-                connectionSocket.sendto('nok'.encode('utf-8'),clientAddress)
-            else:
-                Usuarios.append(usersenha)
-                saveusers()
-                connectionSocket.sendto('ok'.encode('utf-8'),clientAddress)
-                os.mkdir(os.path.join(DIRECTORY_TO_WATCH,usersenha.split(':')[0]))
+            Usuarios.append(usersenha)
+            saveusers()
+            connectionSocket.sendto('ok'.encode('utf-8'),clientAddress)
+            os.mkdir(os.path.join(DIRECTORY_TO_WATCH,usersenha.split(':')[0]))
         elif comando[:6] =='login:':
             usersenha=comando.replace('login:','')
             usersenha = usersenha
@@ -275,18 +235,9 @@ def conectado(connectionSocket, clientAddress):
                 if user == usercomp:
                     userexiste = True
             if userexiste:
-                '''link= 'ln '+ os.path.join(DIRECTORY_TO_WATCH,os.path.join(userarq,filecomp))+' '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(usercomp,filecomp))
-                os.system(link)'''
-                comp = loadcomps(userarq)
-                comp.append([usercomp,filecomp])
-                savecomps(userarq,comp)
-                
-                comp = loadcomps(usercomp)
-                comp.append([userarq,filecomp])
-                savecomps(usercomp,comp)
-                updatecomps(os.path.join(userarq,filecomp))
-
-                print('link simbolico criado')
+                link= 'ln '+ os.path.join(DIRECTORY_TO_WATCH,os.path.join(userarq,filecomp))+' '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(usercomp,filecomp))
+                os.system(link)
+                print('link simbolico criado', link)
                 connectionSocket.sendto('ok'.encode('utf-8'),clientAddress)
             else:
                 connectionSocket.sendto('nok'.encode('utf-8'),clientAddress)

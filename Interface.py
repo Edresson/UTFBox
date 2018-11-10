@@ -372,9 +372,9 @@ def registrar():
     usuario,senha,confsenha=get_register_information(ui)
     print(usuario,senha,confsenha)
     if confsenha != senha:
-        print("as senhas não estão iguais")
+        ui.label_warning.setText("as senhas não estão iguais")
     if usuario == '' or senha =='' or confsenha == '':
-        print("Preencha todos os campos")
+        ui.label_warning.setText("Preencha todos os campos")
     sock = connect_to_server_tcp(SERVER, PORT)
     msg = 'createuser:'+usuario+':'+senha
     sock.send(msg.encode('utf-8') )
@@ -388,8 +388,8 @@ def registrar():
         saveconf()
         #startwatcher(diretorio)
         ui.stackedWidget.setCurrentIndex(0) # return for login
-
-
+    elif comando == 'nok':
+        ui.label_warning.setText("Esse Usuario já existe faça login !")
 
 if __name__ == "__main__":
     import sys

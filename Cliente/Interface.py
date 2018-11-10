@@ -259,4 +259,3 @@ def login():
         Usuario = usuario
         udpthread()
         print('tudo 
-
