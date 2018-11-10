@@ -6,11 +6,46 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from socket import *
 
+a
+a
+AF_APPLETALK
+aaaawdaaw
+aw
+def aw
+da
+wd(parameter_list):
+    pass
+bb
+awdawdawd
+aw
+d
+aw
+aw
+adw
+
+wd
+DeprecationWarningdddddddddddddddddddddddddddddd
+aa
+awdawd
+awdaawdakwd
+
+
 import threading
 import os
 from utils import *
-import hashlib 
+a
+abspath
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+aaaa
+aaaa
+aa
+AF_APPLETALK
+a
+awjdhawjduyawd
+a
 
+editei123
+awdaw
 import pickle
 try:
         with open('Conf-file.list', 'rb') as fp:
@@ -25,6 +60,18 @@ def saveconf():
     with open('Conf-file.list', 'wb') as fp:
             pickle.dump(conf_file,fp)
             
+            awdawdawd
+            awd
+            aw
+            d
+            aw
+            awd
+
+            awd
+            awdawd
+
+            wadawd
+
 Usuario = ''
 DIRECTORY_TO_WATCH = ''
 SERVER= '127.0.0.1'
@@ -235,194 +282,18 @@ def startwatcher(directory):
 
 
 def get_login_information(ui):
-    password = ui.Senha.text()
-    result = hashlib.md5(password.encode()) 
-    senha=result.hexdigest()
-    return ui.Usuario.text(),senha
+    return ui.Usuario.text(),ui.Senha.text()
 
 def get_compartilhar_information(ui):
     return ui.usuarioacomp.text()
 
 
 def get_register_information(ui):
-    password = ui.RSenha.text()
-    result = hashlib.md5(password.encode()) 
-    rsenha=result.hexdigest()
-    password = ui.confSenha.text()
-    result = hashlib.md5(password.encode()) 
-    confSenha=result.hexdigest()
-    return ui.RUsuario.text(),rsenha,confSenha
+    return ui.RUsuario.text(),ui.RSenha.text(),ui.confSenha.text()
 
 def registrar_se():
     global ui
     ui.stackedWidget.setCurrentIndex(1)
 
 def login():
-    global ui,Usuario,nologout,DIRECTORY_TO_WATCH
-    nologout = True 
-    sock = connect_to_server_tcp(SERVER, PORT)
-    usuario,senha=get_login_information(ui)
-    msg = 'login:'+usuario+':'+senha
-    sock.send(msg.encode('utf-8') )
-    comando= sock.recv(1024).decode('utf-8')
-    comando = comando.replace('\r\n\r\n','')
-    if comando == 'ok':
-        Usuario = usuario
-        udpthread()
-        print('tudo certo')
-        for i in conf_file:
-            if i.split(':')[0] == usuario:
-                startwatcher(i.split(':')[1])
-        ui.stackedWidget.setCurrentIndex(2)
-        sock2 = connect_to_server_tcp(SERVER, PORT)
-        msg = 'checkupdate:'+Usuario
-        sock2.send(msg.encode('utf-8') )
-        comando= sock2.recv(1024)
-        arquivos =  pickle.loads(comando)
-        listanome = [] 
-        path = DIRECTORY_TO_WATCH
-        onlyfiles = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
-        
-        for n,t in arquivos:
-            listanome.append(n)
-            if n in onlyfiles:
-                indice= onlyfiles.index(n)
-                tempo = os.path.getmtime(os.path.join(path,onlyfiles[indice]))
-                if tempo == t:
-                    continue
-                elif tempo > t:
-                    EnviarArquivo(os.path.join(path, n))
-                    time.sleep(1) 
-                    print('atualizar mandar para o servidor ',n) 
-                    #upload
-                elif tempo < t:
-                    SolicitarDownload(os.path.join(Usuario, n))
-                    time.sleep(1) 
-                    print('atualizar, baixar do servidor',n)
-                    #Download
-        
-        downloads= set(listanome) -set(onlyfiles)
-        uploads = set(onlyfiles) - set(listanome)
 
-        for i in uploads:
-            print( "upa ",i)
-            EnviarArquivo(os.path.join(path, i))
-            time.sleep(1) 
-            #upa
-            pass
-        for i in downloads:
-            print( 'baixar: ',i)
-            SolicitarDownload(os.path.join(Usuario, i))
-            time.sleep(1) 
-            
-            # baixa 
-            pass
-                
-        
-        
-    else:
-        print('login incorreto: ',comando)
-    
-
-def logout():
-    global nologout
-    nologout = False
-    ui.stackedWidget.setCurrentIndex(0)
-
-def change_dir():
-    global Usuario,DIRECTORY_TO_WATCH,ui
-    logout()
-    diretorio= str(QFileDialog.getExistingDirectory(None,"Selecione o Diretorio que você deseja compartilhar")) # seleceção do diretorio
-    pos=conf_file.index(Usuario+':'+DIRECTORY_TO_WATCH)
-    conf_file[pos]= Usuario+':'+diretorio
-    saveconf()
-    ui.stackedWidget.setCurrentIndex(0)
-
-def selectfile():
-    global compfile,DIRECTORY_TO_WATCH
-    compfile =  str(QFileDialog.getOpenFileName(None, 'Selecione o arquivo',DIRECTORY_TO_WATCH)[0]) # seleceção do diretorio
-    
-
-def compartilhar():
-    global ui,compfile,DIRECTORY_TO_WATCH,Usuario
-    if compfile=='':
-        ui.label_warning.setText('Selecione o Arquivo que deseja compartilhar.')
-        return None
-    usuariocomp=get_compartilhar_information(ui)
-    if Usuario ==usuariocomp:
-        ui.label_warning.setText("Você não pode compartilhar um arquivo com você mesmo...")
-        return None
-    filecomp = compfile.replace(os.path.join(DIRECTORY_TO_WATCH,''),'')
-    if usuariocomp == '':
-        ui.label_warning.setText("Preencha o nome do usuario ao qual deseja compartilhar o arquivo !")
-        return None
-    print(os.path.join(DIRECTORY_TO_WATCH,filecomp))
-    if os.path.isfile(os.path.join(DIRECTORY_TO_WATCH,filecomp)):
-        #send
-        sock2 = connect_to_server_tcp(SERVER, PORT)
-        msg = 'compartilhar:'+Usuario+':'+usuariocomp+':'+filecomp
-        sock2.send(msg.encode('utf-8') )
-        comando= sock2.recv(1024).decode('utf-8')
-        comando = comando.replace('\r\n\r\n','')
-        if comando == 'ok':
-            ui.label_warning.setText('Arquivo Compartilhado com sucesso!')
-        elif comando == 'nok':
-            ui.label_warning.setText('O Usuario não existe no servidor!')
-        else:
-            ui.label_warning.setText('Erro tente novamente')
-    else:
-        ui.label_warning.setText('Arquivo selecionado invalido, selecione apenas arquivos da pasta compartilhada!')    
-        return None
-
-def proxima_page():
-    ui.stackedWidget.setCurrentIndex(3)
-
-def voltar_page():
-    ui.stackedWidget.setCurrentIndex(2)
-
-def registrar():
-    global ui
-    usuario,senha,confsenha=get_register_information(ui)
-    print(usuario,senha,confsenha)
-    if confsenha != senha:
-        ui.label_warning.setText("as senhas não estão iguais")
-    if usuario == '' or senha =='' or confsenha == '':
-        ui.label_warning.setText("Preencha todos os campos")
-    sock = connect_to_server_tcp(SERVER, PORT)
-    msg = 'createuser:'+usuario+':'+senha
-    sock.send(msg.encode('utf-8') )
-    comando= sock.recv(1024).decode('utf-8')
-    comando = comando.replace('\r\n\r\n','')
-    if comando == 'ok':
-        
-        print('tudo certo')
-        diretorio= str(QFileDialog.getExistingDirectory(None,"Selecione o Diretorio que você deseja compartilhar")) # seleceção do diretorio
-        conf_file.append(usuario+':'+diretorio)
-        saveconf()
-        #startwatcher(diretorio)
-        ui.stackedWidget.setCurrentIndex(0) # return for login
-    elif comando == 'nok':
-        ui.label_warning.setText("Esse Usuario já existe faça login !")
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-
-    #### buttons connections ####
-    ui.Registrarse.clicked.connect(registrar_se) # o botao para ir para pagina de registro
-    ui.Login.clicked.connect(login) # botao de login
-    ui.Registrar.clicked.connect(registrar) # botao de registro
-    ui.bt_logout.clicked.connect(logout)
-    ui.bt_changedir.clicked.connect(change_dir)
-    ui.bt_proxpage.clicked.connect(proxima_page)
-    ui.bt_voltar.clicked.connect(voltar_page)
-    ui.bt_selefile.clicked.connect(selectfile)
-    ui.bt_compartilhar.clicked.connect(compartilhar)
-
-    #############################
-
-    MainWindow.show()
-    sys.exit(app.exec_())
