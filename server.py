@@ -15,8 +15,9 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 import pickle
+cparquivos_em_transferencia = []
+arquivos_em_transferencia = []
 
-ignorecp = False
 udpserver = ''
 clientes =[]
 #DIRECTORY_TO_WATCH = "/home/edresson/UTFPR/7-periodo/sistemas-distribuidos/Trabalho-UTFBox/UTFBox/Servidor/"
@@ -28,7 +29,7 @@ import pickle
 
 
 
-ignoreclient = False
+
 try:
     with open('Usuarios.list', 'rb') as fp:
         Usuarios = pickle.load(fp)
@@ -65,10 +66,11 @@ class Handler(FileSystemEventHandler):
 
     @staticmethod
     def on_any_event(event):
-        global udpserver,clientes,ignoreclient,ignorecp
-        print(ignoreclient)
-        if ignoreclient == False:
-            src_path = event.src_path.replace(DIRECTORY_TO_WATCH,'')
+        global udpserver,clientes,arquivos_em_transferencia,cparquivos_em_transferencia
+        
+        src_path = event.src_path.replace(DIRECTORY_TO_WATCH,'')
+        if src_path not in arquivos_em_transferencia:
+            
                 
             if event.is_directory:
                 print(event.src_path)
@@ -79,13 +81,10 @@ class Handler(FileSystemEventHandler):
             elif event.event_type == 'created':
                 # Take any action here when a file is first created.
                 for i in clientes:
-                    '''print(i,ignoreclient)
-                    if i[0] == ignoreclient[0] :
-                        continue'''
                     msg = 'create:'+src_path
                     udpserver.sendto(msg.encode('utf-8'),i)
-                if ignorecp == False:    
-                    print("Update compartilhado",src_path,ignorecp)
+                if  src_path not in cparquivos_em_transferencia:    
+                    print("Update compartilhado",src_path)
                     updatecomps(src_path)  
                 print("Received created event - %s." % event.src_path)
 
@@ -93,26 +92,25 @@ class Handler(FileSystemEventHandler):
                 #EnviarArquivo(event.src_path)
                 # Taken any action here when a file is modified.
                 for i in clientes:
-                    '''print(i,ignoreclient)
-                    if i[0] == ignoreclient[0] :
-                        continue'''
                     msg= 'update:'+src_path
                     udpserver.sendto(msg.encode('utf-8'),i)
-                print("Received modified event - %s." % event.src_path)
-                if ignorecp == False:
-                    print("Update compartilhado",src_path,ignorecp)
+                print("Received modified event - %s." % event.src_path,cparquivos_em_transferencia)
+                if  src_path not in cparquivos_em_transferencia:
+                    print("Update compartilhado",src_path)
                     updatecomps(src_path) 
 
             elif event.event_type == 'deleted':
                 for i in clientes:
-                    '''if i == ignoreclient :
-                        continue'''
                     mensagemudp = 'delete:'+src_path
                     udpserver.sendto(mensagemudp.encode('utf-8'),i)
                 #RemoverArquivo('rm -rf '+event.src_path)
                 # Taken any action here when a file is modified.
                 print("Received deleted event - %s." % event.src_path)
-
+        else:
+            if  src_path not in cparquivos_em_transferencia:
+                    print("Update compartilhado de fora",src_path)
+                    updatecomps(src_path) 
+                    
 @threaded
 def startwatcher():
     w = Watcher()
@@ -142,33 +140,40 @@ def savecomps(user,lista):
         pickle.dump(lista,fp)
 @threaded
 def updatecomps(path):
-    global DIRECTORY_TO_WATCH,ignorecp
-    ignorecp = True
+    global DIRECTORY_TO_WATCH,cparquivos_em_transferencia
     path = path.replace(DIRECTORY_TO_WATCH,'')
+    #cparquivos_em_transferencia.append(path)
     user= os.path.dirname(path)
     comp = loadcomps(user)
     arquivo= os.path.basename(path)
+    print("comps do useer:",user,comp,cparquivos_em_transferencia)
     for i in comp:
         if i[1] == arquivo:
-            cp = 'cp -rf '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(user,arquivo))+' '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(i[0],arquivo))
+            cp = '/bin/cp -rf '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(user,arquivo))+' '+os.path.join(DIRECTORY_TO_WATCH,os.path.join(i[0],arquivo))
             print(cp)
+            cparquivos_em_transferencia.append(os.path.join(i[0],arquivo))
             os.system(cp)#copiar;;
-    time.sleep(1)
-    ignorecp = False
+            time.sleep(1)
+            cparquivos_em_transferencia.pop(cparquivos_em_transferencia.index(os.path.join(i[0],arquivo)))
+
+    
+    
 @threaded       
 def conectado(connectionSocket, clientAddress):
-        global ignoreclient,DIRECTORY_TO_WATCH,Usuarios
+        global DIRECTORY_TO_WATCH,Usuarios,arquivos_em_transferencia 
         comando= connectionSocket.recv(1024)
         comando = comando.replace('\r\n\r\n','')
         if comando[:7] == 'upload:':
             
             print('addres',clientAddress)
-            
-            ignoreclient = True
+            filename = comando.replace('upload:','')
+            filename = filename.decode('utf-8')
+            arquivos_em_transferencia.append(filename) 
             time.sleep(2)
             print('Fazendo Upload')
             filename = comando.replace('upload:','')
             filename = filename.decode('utf-8')
+            orgfilename = filename.decode('utf-8')
             connectionSocket.sendto('ok'.encode('utf-8'),clientAddress)
             filename= os.path.join(DIRECTORY_TO_WATCH,filename)
             print(filename)
@@ -197,7 +202,7 @@ def conectado(connectionSocket, clientAddress):
                 file.close()
                 connectionSocket.close()
             time.sleep(2)
-            ignoreclient = False
+            arquivos_em_transferencia.pop(arquivos_em_transferencia.index(orgfilename))
             print(filename,DIRECTORY_TO_WATCH)
             print('Upload Concluido')
 
